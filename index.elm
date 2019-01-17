@@ -45,7 +45,7 @@ displayPosition position =
   listDict.get position renamings
   |> Maybe.withDefaultReplace (freeze position)
   |> (\posForDisplay ->
-    let (posForDisplay2, title, class) =
+    let (posForDisplay2, title, class, buttons) =
           if Dict.get position personByPositionDict /= Nothing then
             (posForDisplay, position + " - can be renamed", "position", [])
           else
