@@ -1,0 +1,72 @@
+[
+  {
+    "$t_ctor": "Tuple2",
+    "_1": "Project Manager",
+    "_2": {
+      "$d_ctor": "Just",
+      "args": {
+        "_1": {
+          "name": "Chugh, Ravi",
+          "record": "1507347928",
+          "date": "2013"
+        }
+      }
+    }
+  },
+  {
+    "$t_ctor": "Tuple2",
+    "_1": "Research Manager",
+    "_2": {
+      "$d_ctor": "Just",
+      "args": {
+        "_1": {
+          "name": "Mayer, Mikaël",
+          "record": "6367450327",
+          "date": "1 Dec 2017"
+        }
+      }
+    }
+  },
+  {
+    "$t_ctor": "Tuple2",
+    "_1": "Research Apprentice",
+    "_2": {
+      "$d_ctor": "Just",
+      "args": {
+        "_1": {
+          "name": "Mayer, Leo",
+          "record": "2628139953",
+          "date": "2017"
+        }
+      }
+    }
+  },
+  {
+    "$t_ctor": "Tuple2",
+    "_1": "Research Manager2",
+    "_2": {
+      "$d_ctor": "Just",
+      "args": {
+        "_1": {
+          "name": "Hempel, Brian",
+          "record": "33785827960",
+          "date": "2015"
+        }
+      }
+    }
+  },
+  {
+    "$t_ctor": "Tuple2",
+    "_1": "Research Assistant",
+    "_2": {
+      "$d_ctor": "Just",
+      "args": {
+        "_1": {
+          "name": "Lupin, Justin",
+          "record": "22601008210",
+          "date": "2016"
+        }
+      }
+    }
+  }
+]
