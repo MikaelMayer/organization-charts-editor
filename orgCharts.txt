@@ -2,9 +2,9 @@
    (" ", [], [],
     [Leader "Project Manager" [
       Leader "Research Manager" [
-        Leader "Apprentice" []
+        Leader "Research Apprentice" []
       ],
-      Leader "Research Manager" []
+      Leader "Research Manager2" []
      ]
    ])
 ]
