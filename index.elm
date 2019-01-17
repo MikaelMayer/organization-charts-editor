@@ -1,14 +1,12 @@
 edit = True
 
-personByPost: List (String, Maybe {name: String, date: String, record: String})
-personByPost =
-  __jsEval__ <| Maybe.withDefault "[]" <| fs.read "posts.json"
+personByPosition: List (String, Maybe {name: String, date: String, record: String})
+personByPosition =
+  __jsEval__ <| Maybe.withDefault "[]" <| fs.read "positions.json"
   
-personByPostDict = Dict.fromList personByPost
+personByPositionDict = Dict.fromList personByPosition
 
 removeSecondName given_name =
-  if given_name == "Tsz Hei Jubilee" then "Jubilee" else
-  if given_name == "Chit Pan Ivan" then "Ivan" else
   case Regex.extract """^(\S+)\b""" given_name of
     Just [x] -> x
     _ -> given_name
@@ -16,8 +14,8 @@ removeSecondName given_name =
 buildpic content =
   <div class="aroundcrop"><div class="crop">@content</div></div>
     
-getInfo post =
-  Dict.get post personByPostDict
+getInfo position =
+  Dict.get position personByPositionDict
   |> Maybe.andThen identity
   |> Maybe.map (\{name, date, record} ->
     let (name, pic) =
@@ -42,33 +40,34 @@ renamings =
   |> Maybe.withDefaultReplace (freeze "[\n]")
   |> evaluate
 
--- If we rename a post visually, the renamining will be stored in the variable "renamings"
-displayPost post = 
-  listDict.get post renamings
-  |> Maybe.withDefaultReplace (freeze post)
-  |> (\postForDisplay ->
-    let (postForDisplay2, title, class, buttons) =
-          if Dict.get post personByPostDict /= Nothing then
-            (postForDisplay, post + " - can be renamed", "post", [])
+-- If we rename a position visually, the renamining will be stored in the variable "renamings"
+displayPosition position = 
+  listDict.get position renamings
+  |> Maybe.withDefaultReplace (freeze position)
+  |> (\posForDisplay ->
+    let (posForDisplay2, title, class) =
+          if Dict.get position personByPositionDict /= Nothing then
+            (posForDisplay, position + " - can be renamed", "position", [])
           else
-            let suggestions = List.filterMap (\(existingPost, _) ->
-                    if Regex.matchIn post existingPost then
-                      Just existingPost
+            let suggestions = List.filterMap (\(existingPosition, _) ->
+                    if Regex.matchIn position existingPosition then
+                      Just existingPosition
                     else
                       Nothing
-                  ) personByPost
+                  ) personByPosition
                 suggestion =
-                  "Post not found. Remove some characters or click on suggestions."
+                  "Position not found. Remove some characters or click on suggestions."
                 buttons = 
                   List.map (\suggestion ->
-                    Html.button suggestion "Is this the correct post?"
+                    Html.button suggestion "Is this the correct position?"
                       (post,    renamings) (\_ ->
-                      (suggestion, renamings ++ [(suggestion, post)]))
+                      (suggestion, renamings ++ [(suggestion, position)]))
                   ) suggestions
             in
-            (post, suggestion, "post notfound", buttons)
+            (pos, suggestion, "post notfound")
+            (position, suggestion, "position notfound", buttons)
     in
-    [<span class=@class title=@title>@postForDisplay2</span>] ++ buttons
+    [<span class=@class title=@title>@posForDisplay2</span>] ++ buttons
   )
 
 type OrgChart = Leader String (List OrgChart)
@@ -82,31 +81,31 @@ orgCharts =
 orgCharts = orgCharts ++ missing orgCharts
   
 missing orgCharts =
-  let gatherPosts (Leader c o) =
-        c :: List.concatMap gatherPosts o
-      printedPosts =
+  let gatherPositions (Leader c o) =
+        c :: List.concatMap gatherPositions o
+      printedPositions =
         List.concatMap (\(_, _, _, lds) ->
-          List.concatMap gatherPosts lds) orgCharts
-      postIsPrinted c =
-        List.any (== c) printedPosts
+          List.concatMap gatherPositions lds) orgCharts
+      positionIsPrinted c =
+        List.any (== c) printedPositions
   in
-  List.filterMap (\(post, info) ->
-    if postIsPrinted post then Nothing else
-      if info == Nothing then Nothing else Just post
-  ) personByPost
-  |> List.map (\post ->
-    (post, [], [["dontbreakafter", "true"]], [Leader post []])
+  List.filterMap (\(position, info) ->
+    if positionIsPrinted position then Nothing else
+      if info == Nothing then Nothing else Just position
+  ) personByPosition
+  |> List.map (\position ->
+    (position, [], [["dontbreakafter", "true"]], [Leader position []])
   )
   
 renderOrgChart istop nosiblings orgChart =
-  let (Leader post ministers) = orgChart in
+  let (Leader position ministers) = orgChart in
   let childNoSiblings = List.length ministers <= 1 in
   let leader =
-        case getInfo post of
+        case getInfo position of
           Just {name, date, pic} ->
-            <div class="leader">@pic<div class="picinfo">@displayPost(post)<br>@name<br>@date</div></div>
+            <div class="leader">@pic<div class="picinfo">@displayPosition(position)<br>@name<br>@date</div></div>
           _ ->
-            <div class="leader vacant">@( buildpic <span></span>)<div class="picinfo">@displayPost(post)<br>Vacant</div></div>
+            <div class="leader vacant">@( buildpic <span></span>)<div class="picinfo">@displayPosition(position)<br>Vacant</div></div>
       children =
         Html.div [] [["class", "leaderchildren"]] (List.map (renderOrgChart False childNoSiblings) ministers)
       editactions =
@@ -142,10 +141,10 @@ span.helper {
 span.helper + img {
     vertical-align: middle;
 }
-span.post {
+span.position {
   white-space: pre;
 }
-span.post.notfound {
+span.position.notfound {
   color: red;
   font-weight: bold;
 }
