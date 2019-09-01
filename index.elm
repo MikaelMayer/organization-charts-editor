@@ -45,9 +45,9 @@ displayPosition position =
   listDict.get position renamings
   |> Maybe.withDefaultReplace (freeze position)
   |> (\posForDisplay ->
-    let (posForDisplay2, title, class) =
+    let (posForDisplay2, title, class, buttons) =
           if Dict.get position personByPositionDict /= Nothing then
-            (posForDisplay, position + " - can be renamed", "position")
+            (posForDisplay, position + " - can be renamed", "position", [])
           else
             let suggestions = List.filterMap (\(existingPosition, _) ->
                     if Regex.matchIn position existingPosition then
@@ -56,11 +56,18 @@ displayPosition position =
                       Nothing
                   ) personByPosition
                 suggestion =
-                  "Position not found. Did you mean " ++ String.join ", " suggestions
+                  "Position not found. Remove some characters or click on suggestions."
+                buttons = 
+                  List.map (\suggestion ->
+                    Html.button suggestion "Is this the correct position?"
+                      (post,    renamings) (\_ ->
+                      (suggestion, renamings ++ [(suggestion, position)]))
+                  ) suggestions
             in
-            (position, suggestion, "position notfound")
+            (pos, suggestion, "post notfound")
+            (position, suggestion, "position notfound", buttons)
     in
-    [<span class=@class title=@title>@posForDisplay2</span>]
+    [<span class=@class title=@title>@posForDisplay2</span>] ++ buttons
   )
 
 type OrgChart = Leader String (List OrgChart)
@@ -101,6 +108,13 @@ renderOrgChart istop nosiblings orgChart =
             <div class="leader vacant">@( buildpic <span></span>)<div class="picinfo">@displayPosition(position)<br>Vacant</div></div>
       children =
         Html.div [] [["class", "leaderchildren"]] (List.map (renderOrgChart False childNoSiblings) ministers)
+      editactions =
+        if edit then
+          [Html.button "+" "Add a child" ministers (\x -> x ++ [Leader "TODO" []])] ++ 
+          (if List.length ministers >= 1 then 
+          [Html.button "-" "Remove children" ministers (\x -> [])]
+          else [])
+        else []
   in
   <div class=@(
         "orgChart" +
@@ -108,7 +122,7 @@ renderOrgChart istop nosiblings orgChart =
         (if nosiblings then " nosiblings" else "") +
         (if childNoSiblings then " left" else "") +
         (if List.length ministers == 0 then " nochildren" else ""))
-   >@([leader] ++ [children
+   >@([leader] ++ editactions ++ [children
   ])</div>
   
 renderTopOrgChart (name, style, attrs, orgCharts) =
